@@ -112,6 +112,10 @@ public class CustomerService implements UserDetailsService{
             throw new ErrorServices("El usuario no ha sido encontrado");
         }
     }
+    
+    public Customer finById(String id){
+        return cr.findById(id).get();
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
