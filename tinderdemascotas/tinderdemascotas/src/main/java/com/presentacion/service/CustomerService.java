@@ -6,7 +6,6 @@ import com.presentacion.entitys.Picture;
 import com.presentacion.errors.ErrorServices;
 import com.presentacion.repositories.CustomerRepository;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import javax.transaction.Transactional;
@@ -34,16 +33,11 @@ public class CustomerService implements UserDetailsService{
     private NotoficationService ns;
     
     @Transactional
-    public void Customerregister(MultipartFile file,String name, String lastname, String email, String password) throws ErrorServices{
-       validate(name,lastname,email,password);
+    public void customeRregister(MultipartFile file,Customer customer) throws ErrorServices{
+        validate(customer.getName(),customer.getLastname(),customer.getEmail(),customer.getPassword());               
         
-        Customer customer = new Customer();
-        customer.setName(name);
-        customer.setLastname(lastname);
-        customer.setEmail(email);
-        customer.setPassword(new BCryptPasswordEncoder().encode(password));
-        customer.setAlta(new Date());
-        
+        customer.setPassword(new BCryptPasswordEncoder().encode(customer.getPassword()));        
+        customer.setBaja(false);
         Picture pricture = ps.savePicture(file);
         customer.setPicture(pricture);
         
@@ -52,16 +46,17 @@ public class CustomerService implements UserDetailsService{
         // ns.sendEmail("Bienvenido al tinde der mascotas", "tinder de mascotas", customer.getEmail());
     }
     @Transactional
-    public void modify(MultipartFile file,String id,String name, String lastname, String email, String password) throws ErrorServices{
+    public void modify(MultipartFile file,String id,Customer customer) throws ErrorServices{
         Optional<Customer> answer = cr.findById(id);
         if (answer.isPresent()) {
-            validate(name, lastname, email, password);
-            Customer customer = answer.get();
-            customer.setName(name);
-            customer.setLastname(lastname);
-            customer.setEmail(email);
-            customer.setPassword(new BCryptPasswordEncoder().encode(password));
-            customer.setAlta(new Date());
+            Customer newcustomer = answer.get();
+            validate(customer.getName(),customer.getLastname(),customer.getEmail(),customer.getPassword());               
+            
+            newcustomer.setName(customer.getName());
+            newcustomer.setLastname(customer.getLastname());
+            newcustomer.setEmail(customer.getEmail());
+            newcustomer.setPassword(new BCryptPasswordEncoder().encode(customer.getPassword()));
+            newcustomer.setAlta(customer.getAlta());
 
             String idPicture = null;
             if (customer.getPicture() != null) {
@@ -71,7 +66,7 @@ public class CustomerService implements UserDetailsService{
             Picture picture = ps.update(idPicture, file);
             customer.setPicture(picture);
             
-            cr.save(customer);        
+            cr.save(newcustomer);        
         }else{
             throw new ErrorServices("El usuario no ha sido encontrado");
         }
@@ -87,7 +82,7 @@ public class CustomerService implements UserDetailsService{
             throw new ErrorServices("El mail ingresado es incorrecto");
         }
         if (password== null || password.isEmpty() || password.contains(" ") || password.length()<4) {
-            throw new ErrorServices("La clave ingresada es incorrecta o requeire mas de 4 caracteres");
+            throw new ErrorServices("La clave ingresada es incorrecta o requiere mas de 4 caracteres");
         }
     }
     @Transactional
@@ -95,7 +90,7 @@ public class CustomerService implements UserDetailsService{
          Optional<Customer> answer = cr.findById(id);
         if (answer.isPresent()) {
             Customer customer = answer.get();
-            customer.setBaja(new Date());
+            customer.setBaja(true);
             cr.save(customer);
         }else{
             throw new ErrorServices("El usuario no ha sido encontrado");
@@ -106,7 +101,7 @@ public class CustomerService implements UserDetailsService{
          Optional<Customer> answer = cr.findById(id);
         if (answer.isPresent()) {
             Customer customer = answer.get();
-            customer.setBaja(null);
+            customer.setBaja(false);
             cr.save(customer);
         }else{
             throw new ErrorServices("El usuario no ha sido encontrado");
@@ -116,11 +111,18 @@ public class CustomerService implements UserDetailsService{
     public Customer finById(String id){
         return cr.findById(id).get();
     }
+    
+    public Customer findByEmail(String email){
+        return cr.findByEmail(email);
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Customer customer = cr.findByEmail(email);
+        System.out.println("ACA LLEGAMOS");
+        Customer customer = findByEmail(email);
+        
         if (customer != null) {
+            System.out.println("Customer email: " +customer.getEmail());
             List<GrantedAuthority> permisos = new ArrayList<>();
             GrantedAuthority rolePermissions = new SimpleGrantedAuthority("ROLE_" + customer.getRol());
             permisos.add(rolePermissions);

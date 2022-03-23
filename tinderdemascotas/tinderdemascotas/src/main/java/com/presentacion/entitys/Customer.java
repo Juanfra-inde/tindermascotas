@@ -2,6 +2,7 @@
 package com.presentacion.entitys;
 
 import com.presentacion.enums.Roles;
+import java.time.LocalDate;
 import java.util.Date;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -10,9 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 public class Customer {
@@ -27,10 +27,11 @@ public class Customer {
     private String email;
     private String password;
     
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date alta;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date baja;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate alta;
+    
+    
+    private Boolean baja;
     
     @ManyToOne
     private Zone zone;
@@ -44,7 +45,8 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(String name, String lastname, String email, String password, Date alta, Date baja, Zone zone) {
+    public Customer(String id, String name, String lastname, String email, String password, LocalDate alta, Boolean baja, Zone zone, Picture picture, Roles rol) {
+        this.id = id;
         this.name = name;
         this.lastname = lastname;
         this.email = email;
@@ -52,7 +54,11 @@ public class Customer {
         this.alta = alta;
         this.baja = baja;
         this.zone = zone;
-    }    
+        this.picture = picture;
+        this.rol = rol;
+    }
+
+      
 
     public String getId() {
         return id;
@@ -94,22 +100,6 @@ public class Customer {
         this.password = password;
     }
 
-    public Date getAlta() {
-        return alta;
-    }
-
-    public void setAlta(Date alta) {
-        this.alta = alta;
-    } 
-
-    public Date getBaja() {
-        return baja;
-    }
-
-    public void setBaja(Date baja) {
-        this.baja = baja;
-    }
-
     public Zone getZone() {
         return zone;
     }
@@ -133,6 +123,25 @@ public class Customer {
     public void setRol(Roles rol) {
         this.rol = rol;
     }
+
+    public LocalDate getAlta() {
+        return alta;
+    }
+
+    public void setAlta(LocalDate alta) {
+        this.alta = alta;
+    }
+
+    public Boolean getBaja() {
+        return baja;
+    }
+
+    public void setBaja(Boolean baja) {
+        this.baja = baja;
+    }
+
+    
+    
     
     
     

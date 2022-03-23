@@ -72,6 +72,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                 <input type="text"  th:field="*{lastname}" th:value="*{lastname}" class="form-control" placeholder="Apelido" required>
             </div>
             <div>
+              <label for="picture"></label>
+              <input type="file" class="form-control" name="file">
+            </div>
+            <div>
                 <input type="hidden" th:field="*{id}" th:value="${customer.id}">
                 <input type="hidden" th:field="*{alta}" th:value="${customer.alta}">
                 <input type="hidden" th:field="*{baja}" th:value="${customer.baja}">
@@ -79,6 +83,9 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
             <br>
             
             <div>
+              <div>
+                <br><p th:if="${error != null}" th:text="${error}" style="color: red;"></p>
+              </div>
                 <div>
                     <button class="btn btn-lg btn-primary btn-block" type="submit">Registrar</button>
                 </div>                
